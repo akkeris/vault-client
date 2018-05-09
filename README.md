@@ -13,7 +13,11 @@ This is a striaght forward vault client for golang, it expects envirnoment varia
 ## Usage
 
 `vault.GetField(path string, field string) string`
+
 `vault.GetSecret(path string) VaultSecret`
+
+`vault.GetFieldFromVaultSecret(secret VaultSecret, field string) string`
+
 
 ```
 type VaultField struct {
@@ -23,10 +27,6 @@ type VaultField struct {
 
 type VaultSecret struct {
 	Fields []VaultField
-}
-
-type GenericSecret struct {
-	X map[string]interface{}
 }
 ```
 

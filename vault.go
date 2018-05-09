@@ -60,9 +60,8 @@ func WriteField(path string, key string, content string) (e error) {
 	return nil
 }
 
-func GetField(path string, field string) string {
+func GetFieldFromVaultSecret(secret VaultSecret, field string) string {
 	var toreturn string
-	secret := GetSecret(path)
 	for _, element := range secret.Fields {
 		if element.Key == field {
 			toreturn = element.Value
@@ -70,6 +69,11 @@ func GetField(path string, field string) string {
 	}
 	return toreturn
 }
+
+func GetField(path string, field string) string {
+	return GetFieldFromVaultSecret(GetSecret(path), field)
+}
+
 func GetSecret(path string) VaultSecret {
 	vaultaddruri := getAddress() + "/v1/" + path
 	vreq, err := http.NewRequest("GET", vaultaddruri, nil)
