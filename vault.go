@@ -23,6 +23,58 @@ type GenericSecret struct {
 	X map[string]interface{}
 }
 
+type VaultList struct {
+	LeaseID       string `json:"lease_id"`
+	Renewable     bool   `json:"renewable"`
+	LeaseDuration int    `json:"lease_duration"`
+	Data          struct {
+		Keys []string `json:"keys"`
+	} `json:"data"`
+	Warnings interface{} `json:"warnings"`
+	Auth     interface{} `json:"auth"`
+}
+
+func ListSecrets(path string) ([]string, error) {
+	var list []string
+	req, err := http.NewRequest("GET", path + "?list=true", nil)
+	if err != nil {
+		return list, err
+	}
+	req.Header.Add("X-Vault-Token", getToken())
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return list, err
+	}
+	defer resp.Body.Close()
+	if err != nil {
+		return list, err
+	}
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return list, err
+	}
+	var vaultlist VaultList
+	_ = json.Unmarshal(respBody, &vaultlist)
+	if len(vaultlist.Data.Keys) == 0 {
+		list = append(list, "vault:"+path)
+	}
+	for _, element := range vaultlist.Data.Keys {
+		if strings.HasSuffix(element, "/") {
+			newelement := strings.Replace(element, "/", "", -1)
+			rlist, err := ListSecrets(path + "/" + newelement)
+			if err != nil {
+				return list, err
+			}
+			list = append(list, rlist...)
+		}
+		if !strings.HasSuffix(element, "/") {
+			list = append(list, "vault:"+path+"/"+element)
+		}
+	}
+	return list, nil
+}
+
 func WriteField(path string, key string, content string) (e error) {
 	existingsecret := GetSecret(path)
 	var newfield VaultField
