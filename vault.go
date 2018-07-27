@@ -36,7 +36,7 @@ type VaultList struct {
 
 func ListSecrets(path string) ([]string, error) {
 	var list []string
-	req, err := http.NewRequest("GET", path + "?list=true", nil)
+	req, err := http.NewRequest("GET", getAddress() + "/v1/" path + "?list=true", nil)
 	if err != nil {
 		return list, err
 	}
