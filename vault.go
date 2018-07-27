@@ -11,8 +11,8 @@ import (
 )
 
 type VaultField struct {
-	Key   string
-	Value string
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
 type VaultSecret struct {
