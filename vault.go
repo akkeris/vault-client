@@ -57,7 +57,7 @@ func ListSecrets(path string) ([]string, error) {
 	var vaultlist VaultList
 	_ = json.Unmarshal(respBody, &vaultlist)
 	if len(vaultlist.Data.Keys) == 0 {
-		list = append(list, "vault:"+path)
+		list = append(list, path)
 	}
 	for _, element := range vaultlist.Data.Keys {
 		if strings.HasSuffix(element, "/") {
@@ -69,7 +69,7 @@ func ListSecrets(path string) ([]string, error) {
 			list = append(list, rlist...)
 		}
 		if !strings.HasSuffix(element, "/") {
-			list = append(list, "vault:"+path+"/"+element)
+			list = append(list, path+"/"+element)
 		}
 	}
 	return list, nil
